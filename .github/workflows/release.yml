@@ -1,0 +1,53 @@
+name: Build cPanel release
+
+on:
+  push:
+    branches: [main]
+    paths: [VERSION]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: دریافت سورس
+        uses: actions/checkout@v4
+
+      - name: ساخت بسته نصب
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          VERSION="$(tr -d '[:space:]' < VERSION)"
+          ARCHIVE="Homa-Ghost-Marzban-Reseller-v${VERSION}.zip"
+          mkdir -p dist package/homa-ghost-reseller
+          rsync -a ./ package/homa-ghost-reseller/ \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='dist' \
+            --exclude='vendor' \
+            --exclude='.env' \
+            --exclude='.env.*' \
+            --exclude='RELEASE-CHECKSUMS.txt'
+          (cd package && zip -qr "../dist/${ARCHIVE}" homa-ghost-reseller)
+          (cd dist && sha256sum "${ARCHIVE}" > "SHA256SUMS-v${VERSION}.txt")
+
+      - name: انتشار Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          VERSION="$(tr -d '[:space:]' < VERSION)"
+          TAG="v${VERSION}"
+          ARCHIVE="dist/Homa-Ghost-Marzban-Reseller-${TAG}.zip"
+          CHECKSUM="dist/SHA256SUMS-${TAG}.txt"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$ARCHIVE" "$CHECKSUM" --clobber
+          else
+            gh release create "$TAG" "$ARCHIVE" "$CHECKSUM" \
+              --target "${GITHUB_SHA}" \
+              --title "Homa Ghost Marzban Reseller ${TAG}" \
+              --notes-file CHANGELOG.md
+          fi
