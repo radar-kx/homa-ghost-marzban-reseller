@@ -20,12 +20,32 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: bcmath, curl, fileinfo, mbstring, pdo_mysql, xml
+          extensions: bcmath, curl, fileinfo, mbstring, pdo_mysql, pdo_sqlite, xml
           tools: composer:v2
           coverage: none
 
-      - name: افزودن وابستگی‌های اجرایی به بسته
-        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress
+      - name: نصب وابستگی‌ها و اجرای تست‌های Laravel
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          composer install --prefer-dist --optimize-autoloader --no-interaction --no-progress
+          php artisan test
+          php -S 127.0.0.1:8099 -t . >/tmp/homa-web-installer.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          for attempt in {1..10}; do
+            if curl --fail --silent http://127.0.0.1:8099/install.php | grep -q 'نصب پنل نمایندگی هما گوست'; then
+              break
+            fi
+            if [[ "$attempt" == 10 ]]; then
+              cat /tmp/homa-web-installer.log
+              exit 1
+            fi
+            sleep 1
+          done
+          kill "$SERVER_PID" 2>/dev/null || true
+          trap - EXIT
+          composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress
 
       - name: ساخت بسته نصب
         shell: bash
