@@ -15,22 +15,32 @@ jobs:
       - name: دریافت سورس
         uses: actions/checkout@v4
 
+      - name: آماده‌سازی PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: bcmath, curl, fileinfo, mbstring, pdo_mysql, xml
+          tools: composer:v2
+          coverage: none
+
+      - name: افزودن وابستگی‌های اجرایی به بسته
+        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress
+
       - name: ساخت بسته نصب
         shell: bash
         run: |
           set -Eeuo pipefail
           VERSION="$(tr -d '[:space:]' < VERSION)"
           ARCHIVE="Homa-Ghost-Marzban-Reseller-v${VERSION}.zip"
-          mkdir -p dist package/homa-ghost-reseller
-          rsync -a ./ package/homa-ghost-reseller/ \
+          mkdir -p dist package
+          rsync -a ./ package/ \
             --exclude='.git' \
             --exclude='.github' \
             --exclude='dist' \
-            --exclude='vendor' \
             --exclude='.env' \
             --exclude='.env.*' \
             --exclude='RELEASE-CHECKSUMS.txt'
-          (cd package && zip -qr "../dist/${ARCHIVE}" homa-ghost-reseller)
+          (cd package && zip -qr "../dist/${ARCHIVE}" .)
           (cd dist && sha256sum "${ARCHIVE}" > "SHA256SUMS-v${VERSION}.txt")
 
       - name: انتشار Release
