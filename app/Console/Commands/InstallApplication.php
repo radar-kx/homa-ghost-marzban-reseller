@@ -19,9 +19,14 @@ class InstallApplication extends Command
         if (! app()->environment('production')) $this->warn('APP_ENV روی production نیست.');
 
         Artisan::call('migrate', ['--force' => true]);
-        $email = $this->ask('ایمیل مدیر', (string) env('ADMIN_EMAIL', 'admin@example.com'));
-        $name = $this->ask('نام مدیر', (string) env('ADMIN_NAME', 'مدیر هما گوست'));
-        $password = $this->secret('رمز مدیر (حداقل ۱۲ کاراکتر)');
+        $email = (string) env('ADMIN_EMAIL', 'admin@example.com');
+        $name = (string) env('ADMIN_NAME', 'مدیر هما گوست');
+        $password = env('HOMA_ADMIN_PASSWORD');
+        if (! $this->option('no-interaction')) {
+            $email = $this->ask('ایمیل مدیر', $email);
+            $name = $this->ask('نام مدیر', $name);
+            $password = $this->secret('رمز مدیر (حداقل ۱۲ کاراکتر)');
+        }
         if (! is_string($password) || strlen($password) < 12) { $this->error('رمز باید حداقل ۱۲ کاراکتر باشد.'); return self::FAILURE; }
 
         User::query()->updateOrCreate(['email' => strtolower((string) $email)], [
