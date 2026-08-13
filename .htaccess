@@ -1,0 +1,24 @@
+Options -Indexes
+DirectoryIndex index.php
+
+<IfModule mod_authz_core.c>
+    <FilesMatch "(^\.env(?:\..*)?$|^\.gitignore$|^artisan$|^composer\.(json|lock)$|^phpunit\.xml$|^VERSION$|^RELEASE-CHECKSUMS\.txt$)">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # پوشه‌های داخلی برنامه هرگز نباید مستقیماً از وب باز شوند.
+    RewriteRule ^(?:app|bootstrap|config|database|resources|routes|storage|tests|vendor)(?:/|$) - [F,L,NC]
+
+    # مسیرهای عمومی بسته Laravel از ریشه دامنه ارائه می‌شوند.
+    RewriteRule ^assets/(.*)$ public/assets/$1 [L,NC]
+    RewriteRule ^robots\.txt$ public/robots.txt [L,NC]
+    RewriteRule ^install/?$ install.php [L,NC]
+
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ public/index.php [L,QSA]
+</IfModule>
