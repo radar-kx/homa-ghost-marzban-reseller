@@ -1,0 +1,9 @@
+@extends('layouts.app')
+@section('title','داشبورد مدیریت')
+@section('eyebrow','کنترل مرکزی هما گوست')
+@section('content')
+<div class="hero-card admin-hero"><div><span class="eyebrow">مرکز مدیریت</span><h2>وضعیت فروش در یک نگاه</h2><p>نمایندگان، موجودی‌ها، سرویس‌ها و درخواست‌های شارژ را مدیریت کنید.</p></div><a class="btn light" href="{{ route('admin.resellers.create') }}">+ نماینده جدید</a></div>
+@if($unknownOperationCount>0)<div class="alert warning">{{ $unknownOperationCount }} عملیات مرزبان نتیجه نامشخص دارد. <a href="{{ route('admin.operations.index') }}"><b>بررسی عملیات‌ها ←</b></a></div>@endif
+<div class="stats-grid four"><article class="stat"><span class="stat-icon mint">♙</span><div><small>نمایندگان</small><strong>{{ number_format($resellerCount) }}</strong><em>حساب ثبت‌شده</em></div></article><article class="stat"><span class="stat-icon blue">◈</span><div><small>سرویس فعال</small><strong>{{ number_format($activeServiceCount) }}</strong><em>در مرزبان</em></div></article><article class="stat"><span class="stat-icon amber">◎</span><div><small>شارژ در انتظار</small><strong>{{ number_format($pendingDepositCount) }}</strong><em>نیازمند بررسی</em></div></article><article class="stat"><span class="stat-icon violet">◉</span><div><small>مجموع کیف پول‌ها</small><strong>{{ number_format($totalWallets) }}</strong><em>ریال</em></div></article></div>
+<div class="quick-grid"><a href="{{ route('admin.deposits.index') }}"><span>◎</span><b>بررسی شارژها</b><small>{{ $pendingDepositCount }} درخواست باز</small></a><a href="{{ route('admin.operations.index') }}"><span>↻</span><b>عملیات مرزبان</b><small>{{ $unknownOperationCount }} نتیجه نامشخص</small></a><a href="{{ route('admin.panels.index') }}"><span>◇</span><b>اتصال مرزبان</b><small>مدیریت و تست اتصال</small></a></div>
+@endsection

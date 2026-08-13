@@ -1,0 +1,6 @@
+@extends('layouts.app')
+@section('title',$reseller->exists?'ویرایش نماینده':'نماینده جدید')
+@section('eyebrow','حساب نمایندگی')
+@section('content')
+<form class="panel-card form-card narrow" method="post" action="{{ $reseller->exists?route('admin.resellers.update',$reseller):route('admin.resellers.store') }}">@csrf @if($reseller->exists)@method('put')@endif<div class="form-grid"><label>نام نماینده<input name="name" value="{{ old('name',$reseller->name) }}" required maxlength="100"></label><label>ایمیل ورود<input type="email" name="email" dir="ltr" value="{{ old('email',$reseller->email) }}" required></label><label>پیشوند اکانت‌ها<small>۳ تا ۱۰ حرف انگلیسی؛ بعداً تغییر ندهید</small><input name="reseller_prefix" dir="ltr" value="{{ old('reseller_prefix',$reseller->reseller_prefix) }}" required pattern="[a-z][a-z0-9]{2,9}"></label><label>رمز عبور<small>{{ $reseller->exists?'برای حفظ رمز فعلی خالی بگذارید':'حداقل ۱۰ کاراکتر' }}</small><input type="password" name="password" {{ $reseller->exists?'':'required' }}></label></div><div class="form-actions"><a class="btn ghost" href="{{ route('admin.resellers.index') }}">انصراف</a><button class="btn primary">ذخیره نماینده</button></div></form>
+@endsection

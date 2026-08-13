@@ -1,0 +1,6 @@
+@extends('layouts.app')
+@section('title','نمایندگان')
+@section('eyebrow','مدیریت حساب‌ها')
+@section('content')
+<div class="toolbar"><div><b>{{ number_format($resellers->total()) }}</b> نماینده ثبت‌شده</div><a class="btn primary" href="{{ route('admin.resellers.create') }}">+ نماینده جدید</a></div><section class="panel-card table-card"><div class="table-wrap"><table><thead><tr><th>نماینده</th><th>پیشوند</th><th>موجودی</th><th>سرویس‌ها</th><th>وضعیت</th><th></th></tr></thead><tbody>@foreach($resellers as $reseller)<tr><td><b>{{ $reseller->name }}</b><small>{{ $reseller->email }}</small></td><td><code>{{ $reseller->reseller_prefix }}</code></td><td>{{ number_format($reseller->wallet_balance_irr) }} ریال</td><td>{{ $reseller->services_count }}</td><td><span class="badge {{ $reseller->is_active?'active':'disabled' }}">{{ $reseller->is_active?'فعال':'غیرفعال' }}</span></td><td class="actions"><a href="{{ route('admin.resellers.edit',$reseller) }}">ویرایش</a><form method="post" action="{{ route('admin.resellers.toggle',$reseller) }}">@csrf<button class="text-btn">{{ $reseller->is_active?'تعلیق':'فعال‌سازی' }}</button></form></td></tr>@endforeach</tbody></table></div>{{ $resellers->links() }}</section>
+@endsection
